@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: udagram-api-feed
+  labels:
+    app: udagram-api-feed
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: udagram-api-feed
+  template:
+    metadata:
+      labels:
+        app: udagram-api-feed
+    spec:
+      containers:
+      - name: backend-feed
+        image: rodgersimiyu/udagram-api-feed:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+          - name: aws-secret-volume
+            mountPath: /root/.aws
+        envFrom:
+          - configMapRef:
+              name: udagram-configmap
+          - secretRef:
+              name: udagram-secret
+      restartPolicy: Always
+      volumes:
+        - name: aws-secret-volume
+          secret:
+            secretName: aws-secret
+            items:
+            - key: credentials
+              path: credentials
